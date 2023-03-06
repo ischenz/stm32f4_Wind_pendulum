@@ -318,8 +318,9 @@ void angle_calibration(void)
 	OLED_ShowString(0,10,"Next push k1",8,1);
 	OLED_Refresh();
 	
-	while(key_num != KEY1_PRES){
-	}
+	do{
+		key_num = KEY_Scan();
+	}while(key_num != KEY1_PRES);
 	mechanical_error_Roll = -Roll;
 	mechanical_error_Pitch = -Pitch;
 	OLED_ShowString(0,30,"OK !!!",8,1);

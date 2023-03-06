@@ -1865,9 +1865,9 @@
       <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>..\USER\control.c</Name>
-        <ColumnNumber>23</ColumnNumber>
-        <TopLine>291</TopLine>
-        <CurrentLine>309</CurrentLine>
+        <ColumnNumber>18</ColumnNumber>
+        <TopLine>292</TopLine>
+        <CurrentLine>328</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -1883,7 +1883,7 @@
       </Doc>
       <Doc>
         <Name>..\USER\main.c</Name>
-        <ColumnNumber>21</ColumnNumber>
+        <ColumnNumber>15</ColumnNumber>
         <TopLine>40</TopLine>
         <CurrentLine>64</CurrentLine>
         <Folding>1</Folding>
