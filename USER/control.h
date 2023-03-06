@@ -18,7 +18,7 @@ typedef struct{
 	int16_t PID_out;
 }PID_TypeDef;
 
-int16_t PID_Calculate(PID_TypeDef *PID,int16_t CurrentValue);
+int16_t PID_Calculate(PID_TypeDef *PID,float CurrentValue);
 void PID_TimerInit(void);
 void Roll_PID_Init(float TargetValue);
 void Pitch_PID_Init(float TargetValue);

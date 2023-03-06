@@ -228,7 +228,7 @@ void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size1,u8 mode)
 //size1:字体大小 
 //*chr:字符串起始地址 
 //mode:0,反色显示;1,正常显示
-void OLED_ShowString(u8 x,u8 y,u8 *chr,u8 size1,u8 mode)
+void OLED_ShowString(u8 x,u8 y,s8 *chr,u8 size1,u8 mode)
 {
 	while((*chr>=' ')&&(*chr<='~'))//判断是不是非法字符!
 	{

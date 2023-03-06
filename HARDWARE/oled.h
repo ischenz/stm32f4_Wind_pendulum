@@ -131,7 +131,7 @@ void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2,u8 mode);
 void OLED_DrawCircle(u8 x,u8 y,u8 r);
 void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size1,u8 mode);
 void OLED_ShowChar6x8(u8 x,u8 y,u8 chr,u8 mode);
-void OLED_ShowString(u8 x,u8 y,u8 *chr,u8 size1,u8 mode);
+void OLED_ShowString(u8 x,u8 y,s8 *chr,u8 size1,u8 mode);
 void OLED_ShowNum(u8 x,u8 y,u32 num,u8 len,u8 size1,u8 mode);
 void OLED_ShowSNum(u8 x,u8 y,int num,u8 len,u8 size1,u8 mode);//添加显示负数功能
 void OLED_ShowFNum(u8 x,u8 y,float num,u8 len,u8 size1,u8 mode);//显示带一位小数的数字

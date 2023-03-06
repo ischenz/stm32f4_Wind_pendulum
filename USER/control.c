@@ -19,15 +19,17 @@ PID_TypeDef Roll_PID,Pitch_PID;
 #define H 88.0f           // 单摆万向节到地面的距离
 #define angle 	 40.0f // 摆动角度设置
 
-#define Roll_KP 0
+#define Roll_KP -100
 #define Roll_KI 0
-#define Roll_KD 0
+#define Roll_KD -900
 
-#define Pitch_KP 0
+#define Pitch_KP 100
 #define Pitch_KI 0
-#define Pitch_KD 0
+#define Pitch_KD 900
 
+int16_t Pwm_x = 0, Pwm_y = 0;
 extern float kalmanFilter_Roll,kalmanFilter_Pitch;
+
 
 // x = A * sin(Omega * t + phi);y = A * sin(Omega * t + phi)
 // 改变振幅A的比值可以改变角度，tan(theta) = A_y / A_x
@@ -39,7 +41,7 @@ void mode_1(void)
 {
     const float cycle = 1574.0;     // 单摆周期
     static uint32_t Movetime = 0; // 运行总时长
-	int16_t Pwm_x = 0, Pwm_y = 0;
+	
     float Ax = 0.0;             // 振幅
     float Omega_t = 0.0;       // 周期
     float x_roll, y_pitch;
@@ -65,7 +67,6 @@ void mode_1(void)
 // 15s内完成幅度可控 的摆动(30~60cm)
 void mode_2(void)
 {
-	int16_t Pwm_x = 0, Pwm_y = 0;
 	float x = 0;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
@@ -92,7 +93,6 @@ void mode_2(void)
 //// 15s 内按照设置的方向(角度)摆动(不短于 20cm)
 void mode_3(void)
 {
-	int16_t Pwm_x = 0, Pwm_y = 0;
 	float x = 0;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
@@ -119,18 +119,25 @@ void mode_3(void)
 //// 拉起一定角度(30°~45°),5s内使风力摆制动达到静止
 void mode_4(void)
 {
-	int16_t Pwm_x = 0, Pwm_y = 0;
     Roll_PID.Target = 0;
 	Pitch_PID.Target = 0;
-	Pwm_x = PID_Calculate(&Roll_PID, Roll);
-	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
+	
+	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
+	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
 	PWM_Load(Pwm_x, Pwm_y);
+	if(kalmanFilter_Roll > 30 || kalmanFilter_Roll < -30){
+		PWM_Load(0, 0);
+	}
+	else if(kalmanFilter_Pitch > 30 || kalmanFilter_Pitch < -30){
+		PWM_Load(0, 0);
+	}
+	OLED_ShowSNum(40,30,Pwm_x,4,8,1);
+	OLED_ShowSNum(40,40,Pwm_y,4,8,1);
 }
 
 //// 用激光笔在地面画圆(半径：15~35cm),台扇吹 5s 后能够在 5s 内恢复圆周运动
 void mode_5(void)
 {
-	int16_t Pwm_x = 0, Pwm_y = 0;
 	float x = 0;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
@@ -201,7 +208,7 @@ void Pitch_PID_Init(float TargetValue)
  * @param       CurrentValue：当前测量值
  * @retval      期望输出值
  */
-int16_t PID_Calculate(PID_TypeDef *PID,int16_t CurrentValue)
+int16_t PID_Calculate(PID_TypeDef *PID,float CurrentValue)
 {
     PID->Err =  PID->Target - CurrentValue;
     PID->Integral += PID->Err;
@@ -288,7 +295,7 @@ uint8_t Set_Length(void)
 }
 uint8_t switch_mode(void)
 {
-	uint8_t	select_mode = 1, key_num = 0;
+	uint8_t	select_mode = 4, key_num = 0;
 	OLED_Clear();
 	OLED_ShowString(0, 0, "Mode:", 8, 1);
 	while(1){

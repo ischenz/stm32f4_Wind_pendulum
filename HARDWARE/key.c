@@ -58,7 +58,6 @@ uint8_t KEY_Scan(void)
 		release = 1;
 		ret = 0;
 	}
-	printf("%d \r\n",ret);
  	return ret;// 无按键按下
 }
 
