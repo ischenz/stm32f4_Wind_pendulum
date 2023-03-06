@@ -7,23 +7,24 @@
 
 extern uint8_t mode_num;
 extern float Pitch,Roll,Yaw;
+float kalmanFilter_Roll,kalmanFilter_Pitch;
 
 uint8_t mode = 1;
 
 PID_TypeDef Roll_PID,Pitch_PID;
 
 #define pi 3.14159f
-#define R 35.0f        // 半径设置
+#define R 20.0f        // 半径设置
 #define H 88.0f           // 单摆万向节到地面的距离
 #define angle 	 40.0f // 摆动角度设置
 
-#define Roll_KP 30
+#define Roll_KP 60
 #define Roll_KI 0
-#define Roll_KD 400
+#define Roll_KD 0
 
-#define Pitch_KP -30
+#define Pitch_KP 0
 #define Pitch_KI 0
-#define Pitch_KD -400
+#define Pitch_KD 0
 
 // x = A * sin(Omega * t + phi);y = A * sin(Omega * t + phi)
 // 改变振幅A的比值可以改变角度，tan(theta) = A_y / A_x
@@ -35,7 +36,7 @@ void mode_1(void)
 {
     const float cycle = 1574.0;     // 单摆周期
     static uint32_t Movetime = 0; // 运行总时长
-	uint16_t Pwm_x = 0, Pwm_y = 0;
+	int16_t Pwm_x = 0, Pwm_y = 0;
     float Ax = 0.0;             // 振幅
     float Omega_t = 0.0;       // 周期
     float x_roll, y_pitch;
@@ -45,11 +46,11 @@ void mode_1(void)
     Omega_t = 2.0f * pi * ((float)Movetime / cycle); // 计算ωt
     x_roll = Ax * sin(Omega_t);           // x = A * sin(ω * t)
     y_pitch = 0;                         // y = 0
-	Roll_PID.Target = -x_roll;
-	Pwm_x = PID_Calculate(&Roll_PID, Roll);
+	Roll_PID.Target = x_roll;
+	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
 	
 	Pitch_PID.Target = y_pitch;
-	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
+	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
 	
 	PWM_Load(Pwm_x, Pwm_y);
 	
@@ -246,8 +247,8 @@ void TIM1_UP_TIM10_IRQHandler(void)//5ms一次pid运算
 	if(TIM_GetITStatus(TIM10,TIM_IT_Update)==SET) //溢出中断
 	{
 		//获取角度,卡尔曼滤波
-		Roll = kalmanFilter_A(Roll);
-		Pitch = kalmanFilter_A(Pitch);
+		kalmanFilter_Roll = kalmanFilter_A(Roll);
+		kalmanFilter_Pitch = kalmanFilter_A(Pitch);
 		//进入相应模式
 		switch(mode)
 		{

@@ -43,15 +43,10 @@ int main(void)
 	Motor_Gpio_Init();
 	Timer1_PWM_GPIO_Init(16, 1000);//约10KHz
 	OLED_ShowString(0,0,"Motor init OK!!",16,1);
+	OLED_Refresh();	
 	delay_ms(500);
-	OLED_Refresh();
 	OLED_Clear();
 	printf("chen:电机初始化成功! \r\n");
-	//pid初始化
-	Roll_PID_Init(0);
-	Pitch_PID_Init(0);
-	PID_TimerInit();
-	printf("chen:初始化PID!\r\n");
 	//模式选择
 	mode = switch_mode();
 	printf("chen:选择模式%d! \r\n", mode);
@@ -62,6 +57,11 @@ int main(void)
 	DMP_Init(); 
 	MPU6050_EXTI_Init();//中断读取角度数据
 	printf("chen:MPU6050初始化成功! \r\n");
+	//pid初始化
+	Roll_PID_Init(0);
+	Pitch_PID_Init(0);
+	PID_TimerInit();
+	printf("chen:初始化PID!\r\n");
 	
 	
 	TIM_Cmd(TIM10, ENABLE);
