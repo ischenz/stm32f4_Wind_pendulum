@@ -2,9 +2,12 @@
 #include "mpu6050.h"
 #include "inv_mpu.h"
 #include "oled.h"
+#include "Kalman.h"
 #include "sys.h"
 
 float Pitch,Roll,Yaw;
+extern float mechanical_error_Pitch,mechanical_error_Roll;
+float kalmanFilter_Roll,kalmanFilter_Pitch;
 
 void MPU6050_EXTI_Init(void)
 {
@@ -43,6 +46,12 @@ void EXTI2_IRQHandler(void)
 		{
 			EXTI_ClearITPendingBit(EXTI_Line2);//清除中断标志位
 			mpu_dmp_get_data(&Pitch,&Roll,&Yaw);		//角度
+			Pitch += mechanical_error_Pitch;
+			Roll  += mechanical_error_Roll;
+//			kalmanFilter_Roll = kalmanFilter_A(Roll);
+//			kalmanFilter_Pitch = kalmanFilter_A(Pitch);
+			kalmanFilter_Roll = Roll;
+			kalmanFilter_Pitch = Pitch;
 //			MPU_Get_Gyroscope(&gyrox,&gyroy,&gyroz);	//陀螺仪
 //			MPU_Get_Accelerometer(&aacx,&aacy,&aacz);	//加速度
 		}

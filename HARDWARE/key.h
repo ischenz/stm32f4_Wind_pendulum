@@ -25,6 +25,6 @@
 #define WKUP_PRES   4	//KEY_UP按下(即WK_UP)
 
 void KEY_Init(void);	//IO初始化
-u8 KEY_Scan(u8);  		//按键扫描函数	
+uint8_t KEY_Scan(void); 		//按键扫描函数	
 
 #endif

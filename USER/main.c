@@ -22,7 +22,8 @@
 #include "usart.h"
 
 uint8_t mode_num = 1;
-extern float Pitch,Roll,Yaw;
+extern float Pitch,Roll,Yaw,kalmanFilter_Roll,kalmanFilter_Pitch,\
+			 mechanical_error_Roll,mechanical_error_Pitch;
 extern uint8_t mode;
 
 int main(void)
@@ -37,6 +38,7 @@ int main(void)
 	Init_Timer3();//控制LED
 	TIM_Cmd(TIM3,ENABLE);
 	OLED_ShowString(0,0,"Hello !!!",16,1);
+	printf("Hello chen!!! \r\n \r\n");
 	OLED_Refresh();
 	printf("chen:LED初始化成功! \r\n");
 	//初始化motor
@@ -68,7 +70,7 @@ int main(void)
 	
 	OLED_ShowString(0,0,"Pitch:",8,1);
 	OLED_ShowString(0,10,"Roll:",8,1);
-	OLED_ShowString(0,20,"Yaw:",8,1);
+
 	OLED_ShowString(0,30,"PWM_x:",8,1);
 	OLED_ShowString(0,40,"PWM_y:",8,1);
 	OLED_ShowString(0,50,"Tim:",8,1);
@@ -76,11 +78,10 @@ int main(void)
 	
 	while(1)
 	{
-		OLED_ShowFNum(40,0,Pitch,4,8,1);
-		OLED_ShowFNum(40,10,Roll,4,8,1);
-		OLED_ShowFNum(40,20,Yaw,4,8,1);
+		OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
+		OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
 		OLED_Refresh();
-		KEY_Val = KEY_Scan(0);
+		KEY_Val = KEY_Scan();
 		if(KEY_Val)
 		{
 			if(KEY_Val == WKUP_PRES)

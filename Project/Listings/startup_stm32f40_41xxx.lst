@@ -860,10 +860,11 @@ ARM Macro Assembler    Page 14
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=.\objects\startup_stm32f40_41xxx.d -o.\objects\startup_stm32
-f40_41xxx.o -IC:\Users\ziqian\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\1.0.8\
-Device\Include --predefine="__UVISION_VERSION SETA 536" --predefine="STM32F40_4
-1xxx SETA 1" --list=.\listings\startup_stm32f40_41xxx.lst ..\CORE\startup_stm32
-f40_41xxx.s
+f40_41xxx.o -IC:\Users\ische\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.12.0\
+Drivers\CMSIS\Device\ST\STM32F4xx\Include -IC:\Users\ische\AppData\Local\Arm\Pa
+cks\Keil\STM32F4xx_DFP\2.12.0\Device\Include --predefine="__UVISION_VERSION SET
+A 536" --predefine="STM32F407xx SETA 1" --list=.\listings\startup_stm32f40_41xx
+x.lst ..\CORE\startup_stm32f40_41xxx.s
 
 
 

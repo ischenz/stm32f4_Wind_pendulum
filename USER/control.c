@@ -7,7 +7,8 @@
 
 extern uint8_t mode_num;
 extern float Pitch,Roll,Yaw;
-float kalmanFilter_Roll,kalmanFilter_Pitch;
+
+float mechanical_error_Roll = 2.5, mechanical_error_Pitch = -1.1;
 
 uint8_t mode = 1;
 
@@ -18,13 +19,15 @@ PID_TypeDef Roll_PID,Pitch_PID;
 #define H 88.0f           // 单摆万向节到地面的距离
 #define angle 	 40.0f // 摆动角度设置
 
-#define Roll_KP 60
+#define Roll_KP 0
 #define Roll_KI 0
 #define Roll_KD 0
 
 #define Pitch_KP 0
 #define Pitch_KI 0
 #define Pitch_KD 0
+
+extern float kalmanFilter_Roll,kalmanFilter_Pitch;
 
 // x = A * sin(Omega * t + phi);y = A * sin(Omega * t + phi)
 // 改变振幅A的比值可以改变角度，tan(theta) = A_y / A_x
@@ -42,7 +45,7 @@ void mode_1(void)
     float x_roll, y_pitch;
 
     Movetime += 5;                       // 每5ms运算一次
-    Ax = 57.2958f * atan(R / H);          // 计算振幅，公式为(360/2π*atan(R/H))
+    Ax = atan(R / H) * 57.2958f;          // 计算振幅，公式为(360/2π*atan(R/H))
     Omega_t = 2.0f * pi * ((float)Movetime / cycle); // 计算ωt
     x_roll = Ax * sin(Omega_t);           // x = A * sin(ω * t)
     y_pitch = 0;                         // y = 0
@@ -62,7 +65,7 @@ void mode_1(void)
 // 15s内完成幅度可控 的摆动(30~60cm)
 void mode_2(void)
 {
-	uint16_t Pwm_x = 0, Pwm_y = 0;
+	int16_t Pwm_x = 0, Pwm_y = 0;
 	float x = 0;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
@@ -89,7 +92,7 @@ void mode_2(void)
 //// 15s 内按照设置的方向(角度)摆动(不短于 20cm)
 void mode_3(void)
 {
-	uint16_t Pwm_x = 0, Pwm_y = 0;
+	int16_t Pwm_x = 0, Pwm_y = 0;
 	float x = 0;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
@@ -110,13 +113,13 @@ void mode_3(void)
 	Pitch_PID.Target = -y_pitch;
 	Pwm_x = PID_Calculate(&Roll_PID, Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
-	PWM_Load(-100, Pwm_y);
+	PWM_Load(Pwm_x, Pwm_y);
 }
 
 //// 拉起一定角度(30°~45°),5s内使风力摆制动达到静止
 void mode_4(void)
 {
-	uint16_t Pwm_x = 0, Pwm_y = 0;
+	int16_t Pwm_x = 0, Pwm_y = 0;
     Roll_PID.Target = 0;
 	Pitch_PID.Target = 0;
 	Pwm_x = PID_Calculate(&Roll_PID, Roll);
@@ -127,7 +130,7 @@ void mode_4(void)
 //// 用激光笔在地面画圆(半径：15~35cm),台扇吹 5s 后能够在 5s 内恢复圆周运动
 void mode_5(void)
 {
-	uint16_t Pwm_x = 0, Pwm_y = 0;
+	int16_t Pwm_x = 0, Pwm_y = 0;
 	float x = 0;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
@@ -139,7 +142,7 @@ void mode_5(void)
     A = 57.2958f * atan(x / H);         // 计算振幅，公式为(360/2π*atan(R/H))
     Omega_t = 2 * pi * Movetime / cycle; // 计算ωt
     x_roll = A * sin(Omega_t);          // x = Ax * sin(ω * t)
-    y_pitch = A * sin(Omega_t + 2/pi);         // y = Ay * sin(ω * t)
+    y_pitch = A * sin(Omega_t + pi/2);         // y = Ay * sin(ω * t)
 	
 	Roll_PID.Target = -x_roll;
 	Pitch_PID.Target = y_pitch;
@@ -203,12 +206,12 @@ int16_t PID_Calculate(PID_TypeDef *PID,int16_t CurrentValue)
     PID->Err =  PID->Target - CurrentValue;
     PID->Integral += PID->Err;
 	/*积分限幅*/
-//	if(PID->Integral > 2000){
-//		PID->Integral = 2000;
-//	}
-//	if(PID->Integral < -2000){
-//		PID->Integral = -2000;
-//	}
+	if(PID->Integral > 200){
+		PID->Integral = 200;
+	}
+	if(PID->Integral < -200){
+		PID->Integral = -200;
+	}
     PID->PID_out = PID->ProportionConstant * PID->Err 										/*比例*/
 				 + PID->IntegralConstant * PID->Integral  									/*积分*/
 			     + PID->DerivativeConstant * (PID->Err - PID->LastErr);						/*微分*/
@@ -246,9 +249,7 @@ void TIM1_UP_TIM10_IRQHandler(void)//5ms一次pid运算
 {
 	if(TIM_GetITStatus(TIM10,TIM_IT_Update)==SET) //溢出中断
 	{
-		//获取角度,卡尔曼滤波
-		kalmanFilter_Roll = kalmanFilter_A(Roll);
-		kalmanFilter_Pitch = kalmanFilter_A(Pitch);
+		//获取角度,卡尔曼滤波--->以移入到mpu中断中
 		//进入相应模式
 		switch(mode)
 		{
@@ -269,13 +270,13 @@ uint8_t Set_Length(void)
 	OLED_Clear();
 	OLED_ShowString(0,0,"Set length:",8,1);
 	while(1){
-		if(KEY_Scan(0) == KEY0_PRES){
+		if(KEY_Scan() == KEY0_PRES){
 			set_value +=5;
 			if(set_value > 50){
 				set_value = 30;
 			}
 		}
-		else if(KEY_Scan(0) == KEY1_PRES){
+		else if(KEY_Scan() == KEY1_PRES){
 			OLED_ShowString(10,0,"OK!!!",8,1);
 			delay_ms(500);
 			OLED_Refresh();
@@ -287,14 +288,15 @@ uint8_t Set_Length(void)
 }
 uint8_t switch_mode(void)
 {
-	uint8_t	select_mode = 1;
+	uint8_t	select_mode = 1, key_num = 0;
 	OLED_Clear();
 	OLED_ShowString(0, 0, "Mode:", 8, 1);
 	while(1){
-		if(KEY_Scan(0) == KEY0_PRES){
+		key_num = KEY_Scan();
+		if(key_num == KEY0_PRES){
 			select_mode +=1;
 		}
-		else if(KEY_Scan(0) == KEY1_PRES){
+		else if(key_num == KEY1_PRES){
 			OLED_ShowString(10,0,"OK!!!",8,1);
 			delay_ms(500);
 			OLED_Refresh();
@@ -302,7 +304,6 @@ uint8_t switch_mode(void)
 		}
 		if(select_mode > 4 ){
 			select_mode = 1;
-
 		}
 		OLED_ShowNum(30,0,select_mode,1,8,1);
 		OLED_Refresh();
