@@ -59,6 +59,9 @@ int main(void)
 	DMP_Init(); 
 	MPU6050_EXTI_Init();//中断读取角度数据
 	printf("chen:MPU6050初始化成功! \r\n");
+	
+	//校准角度
+	angle_calibration();
 	//pid初始化
 	Roll_PID_Init(0);
 	Pitch_PID_Init(0);

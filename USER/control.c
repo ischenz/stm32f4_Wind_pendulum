@@ -8,7 +8,7 @@
 extern uint8_t mode_num;
 extern float Pitch,Roll,Yaw;
 
-float mechanical_error_Roll = 2.5, mechanical_error_Pitch = -1.1;
+float mechanical_error_Roll = 0, mechanical_error_Pitch = 0;
 
 uint8_t mode = 1;
 
@@ -311,3 +311,18 @@ uint8_t switch_mode(void)
 	return select_mode;
 }
 
+void angle_calibration(void)
+{
+	uint8_t key_num = 0;
+	OLED_ShowString(0,0,"stand",8,1);
+	OLED_ShowString(0,10,"Next push k1",8,1);
+	OLED_Refresh();
+	
+	while(key_num != KEY1_PRES){
+	}
+	mechanical_error_Roll = -Roll;
+	mechanical_error_Pitch = -Pitch;
+	OLED_ShowString(0,30,"OK !!!",8,1);
+	OLED_Refresh();
+	delay_ms(500);
+}
