@@ -1,9 +1,4 @@
 #include "control.h"
-#include "math.h"
-#include "mpu6050.h"
-#include "motor.h"
-#include "key.h"
-#include "delay.h"
 
 extern uint8_t mode_num;
 extern float Pitch,Roll,Yaw;
@@ -121,6 +116,7 @@ void mode_4(void)
 {
     Roll_PID.Target = 0;
 	Pitch_PID.Target = 0;
+	float temp = 0;
 	
 	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
@@ -131,6 +127,8 @@ void mode_4(void)
 	else if(kalmanFilter_Pitch > 30 || kalmanFilter_Pitch < -30){
 		PWM_Load(0, 0);
 	}
+	temp = kalmanFilter_Roll;
+	set_computer_value(SEND_FACT_CMD, CURVES_CH1, &temp, sizeof(float));
 	OLED_ShowSNum(40,30,Pwm_x,4,8,1);
 	OLED_ShowSNum(40,40,Pwm_y,4,8,1);
 }
@@ -165,93 +163,6 @@ void mode_5(void)
 
 
 
-/**
- * @brief       Roll_PID初始化
- * @param       目标值
- * @retval      无
- */
-void Roll_PID_Init(float TargetValue)
-{
-    Roll_PID.Target = TargetValue;//目标值
-	Roll_PID.PID_out = 0;
-    Roll_PID.ProportionConstant = Roll_KP;
-    Roll_PID.IntegralConstant = Roll_KI;
-	Roll_PID.DerivativeConstant = Roll_KD;
-    Roll_PID.Err = 0.0f;
-    Roll_PID.LastErr = 0.0f;
-	Roll_PID.PenultErr = 0.0f;
-    Roll_PID.Integral = 0.0f;//积分值
-}
-
-
-/**
- * @brief       Pich_PID初始化
- * @param       目标值
- * @retval      无
- */
-void Pitch_PID_Init(float TargetValue)
-{
-    Pitch_PID.Target = TargetValue;//目标值
-	Pitch_PID.PID_out = 0;
-    Pitch_PID.ProportionConstant = Pitch_KP;
-    Pitch_PID.IntegralConstant = Pitch_KI;
-	Pitch_PID.DerivativeConstant = Pitch_KD;
-    Pitch_PID.Err = 0.0f;
-    Pitch_PID.LastErr = 0.0f;
-	Pitch_PID.PenultErr = 0.0f;
-    Pitch_PID.Integral = 0.0f;//积分值
-}
-
-/**
- * @brief       pid闭环控制计算
- * @param       *PID：PID结构体变量地址
- * @param       CurrentValue：当前测量值
- * @retval      期望输出值
- */
-int16_t PID_Calculate(PID_TypeDef *PID,float CurrentValue)
-{
-    PID->Err =  PID->Target - CurrentValue;
-    PID->Integral += PID->Err;
-	/*积分限幅*/
-	if(PID->Integral > 200){
-		PID->Integral = 200;
-	}
-	if(PID->Integral < -200){
-		PID->Integral = -200;
-	}
-    PID->PID_out = PID->ProportionConstant * PID->Err 										/*比例*/
-				 + PID->IntegralConstant * PID->Integral  									/*积分*/
-			     + PID->DerivativeConstant * (PID->Err - PID->LastErr);						/*微分*/
-
-	PID->LastErr = PID->Err;
-	PWM_Limit(&(PID->PID_out));
-    return PID->PID_out;
-}
-
-void PID_TimerInit(void)
-{
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10,ENABLE);
-	
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
-	TIM_TimeBaseInitStruct.TIM_ClockDivision=TIM_CKD_DIV1;
-	TIM_TimeBaseInitStruct.TIM_CounterMode=TIM_CounterMode_Up;
-	TIM_TimeBaseInitStruct.TIM_Period=5000-1;//5ms
-	TIM_TimeBaseInitStruct.TIM_Prescaler=167;
-	TIM_TimeBaseInit(TIM10,&TIM_TimeBaseInitStruct);	
-	
-	TIM_ITConfig(TIM10,TIM_IT_Update,ENABLE);
-	
-	NVIC_InitTypeDef NVIC_InitStruct;
-	NVIC_InitStruct.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStruct);
-	
-	//TIM_Cmd(TIM10,ENABLE);
-	
-}
-
 void TIM1_UP_TIM10_IRQHandler(void)//5ms一次pid运算
 {
 	if(TIM_GetITStatus(TIM10,TIM_IT_Update)==SET) //溢出中断
@@ -265,7 +176,7 @@ void TIM1_UP_TIM10_IRQHandler(void)//5ms一次pid运算
 			case 3:mode_3();break;
 			case 4:mode_4();break;
 			default:break;
-		}	
+		}		
 	}
 	TIM_ClearITPendingBit(TIM10,TIM_IT_Update); //清除中断标志位	
 }

@@ -409,6 +409,11 @@
               <FileType>1</FileType>
               <FilePath>..\USER\Kalman.c</FilePath>
             </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\pid.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -668,6 +673,11 @@
               <FileName>motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>pidtool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\pidtool.c</FilePath>
             </File>
           </Files>
         </Group>

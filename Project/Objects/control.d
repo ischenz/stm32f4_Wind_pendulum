@@ -40,6 +40,8 @@
 .\objects\control.o: ..\HARDWARE\oled.h
 .\objects\control.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\control.o: ..\USER\Kalman.h
+.\objects\control.o: ..\USER\pid.h
+.\objects\control.o: ..\HARDWARE\pidtool.h
 .\objects\control.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\math.h
 .\objects\control.o: ..\HARDWARE\MPU6050\mpu6050.h
 .\objects\control.o: ..\HARDWARE\MPU6050\mpuiic.h

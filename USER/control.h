@@ -5,23 +5,15 @@
 #include "motor.h"
 #include "oled.h"
 #include "Kalman.h"
+#include "pid.h"
+#include "pidtool.h"
+#include "math.h"
+#include "mpu6050.h"
+#include "key.h"
+#include "delay.h"
 
-typedef struct{
-    float ProportionConstant;
-    float IntegralConstant;
-	float DerivativeConstant;
-    float Err;
-    float LastErr;
-	float PenultErr;
-    float Integral;//»ý·ÖºÍ
-    float Target;
-	int16_t PID_out;
-}PID_TypeDef;
+extern PID_TypeDef Roll_PID,Pitch_PID;
 
-int16_t PID_Calculate(PID_TypeDef *PID,float CurrentValue);
-void PID_TimerInit(void);
-void Roll_PID_Init(float TargetValue);
-void Pitch_PID_Init(float TargetValue);
 void angle_calibration(void);
 
 void mode_1(void);

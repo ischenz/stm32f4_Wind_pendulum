@@ -19,6 +19,8 @@
 #include "mpuexti.h"
 #include "motor.h"
 #include "control.h"
+#include "pid.h"
+#include "pidtool.h"
 #include "usart.h"
 
 uint8_t mode_num = 1;
@@ -39,9 +41,9 @@ int main(void)
 	Init_Timer3();//控制LED
 	TIM_Cmd(TIM3,ENABLE);
 	OLED_ShowString(0,0,"Hello !!!",16,1);
-	//printf("Hello chen!!! \r\n \r\n");
+	printf("Hello chen!!! \r\n \r\n");
 	OLED_Refresh();
-	//printf("chen:LED初始化成功! \r\n");
+	printf("chen:LED初始化成功! \r\n");
 	//初始化motor
 	Motor_Gpio_Init();
 	Timer1_PWM_GPIO_Init(16, 1000);//约10KHz
@@ -52,23 +54,25 @@ int main(void)
 	//printf("chen:电机初始化成功! \r\n");
 	//模式选择
 	mode = switch_mode();
-	//printf("chen:选择模式%d! \r\n", mode);
+	printf("chen:选择模式%d! \r\n", mode);
 	//初始化MPU6050
 	delay_ms(500);
 	OLED_Clear();
 	MPU_Init();
 	DMP_Init(); 
 	MPU6050_EXTI_Init();//中断读取角度数据
-	//printf("chen:MPU6050初始化成功! \r\n");
+	printf("chen:MPU6050初始化成功! \r\n");
 	
 	//校准角度
 	angle_calibration();
-	//printf("chen:角度初始化成功! \r\n");
+	printf("chen:角度初始化成功! \r\n");
 	//pid初始化
-	Roll_PID_Init(0);
-	Pitch_PID_Init(0);
+	PID_param_init(&Roll_PID);
+	PID_param_init(&Pitch_PID);
+	pid_tool_send_param(&Roll_PID ,CURVES_CH1);
+	pid_tool_send_param(&Pitch_PID ,CURVES_CH2);
 	PID_TimerInit();
-	//printf("chen:初始化PID成功 !\r\n");
+	printf("chen:初始化PID成功 !\r\n");
 	
 	
 	TIM_Cmd(TIM10, ENABLE);
