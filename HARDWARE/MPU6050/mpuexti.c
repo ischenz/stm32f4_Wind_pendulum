@@ -50,7 +50,6 @@ void EXTI2_IRQHandler(void)
 			Roll  += mechanical_error_Roll;
 			kalmanFilter_Roll = kalmanFilter_A(Roll);
 			kalmanFilter_Pitch = kalmanFilter_A(Pitch);
-
 //			MPU_Get_Gyroscope(&gyrox,&gyroy,&gyroz);	//Õ”¬›“«
 //			MPU_Get_Accelerometer(&aacx,&aacy,&aacz);	//º”ÀŸ∂»
 		}

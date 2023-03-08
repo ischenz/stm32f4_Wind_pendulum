@@ -3,6 +3,7 @@
 #include "usart.h"
 #include "control.h"
 #include <string.h>
+#include "led.h"
 
 struct prot_frame_parser_t
 {
@@ -261,7 +262,8 @@ static uint8_t protocol_frame_parse(uint8_t *data, uint16_t *data_len)
 void protocol_data_recv(uint8_t *data, uint16_t data_len)
 {
     recvbuf_put_data(parser.recv_ptr, PROT_FRAME_LEN_RECV, parser.w_oft, data, data_len);    // 接收数据
-    parser.w_oft = (parser.w_oft + data_len) % PROT_FRAME_LEN_RECV;                          // 计算写偏移
+    parser.w_oft = (parser.w_oft + data_len) % PROT_FRAME_LEN_RECV;   // 计算写偏移
+	
 }
 
 /**
@@ -313,11 +315,11 @@ int8_t receiving_process(void)
         
         if (packet.ch == CURVES_CH1)
         {
-          set_p_i_d( &Roll_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
+          set_p_i_d(&Roll_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
         }
         else if (packet.ch == CURVES_CH2)
         {
-          //set_p_i_d(&pid_speed, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
+          set_p_i_d(&Pitch_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
         }
         else if (packet.ch == CURVES_CH3)
         {
@@ -338,7 +340,7 @@ int8_t receiving_process(void)
         }
         else if (packet.ch == CURVES_CH2)
         {
-          //set_pid_target(&pid_speed, target_temp);    // 设置目标值
+          set_pid_target(&Pitch_PID, target_temp);    // 设置目标值
         }
 		else if (packet.ch == CURVES_CH3)
         {
@@ -432,6 +434,7 @@ void USART1_IRQHandler(void)
 
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断
 	{
+		
 		data = USART_ReceiveData(USART1);   			
 		Recv1[rx_cnt++]=data;//接收的数据存入接收数组 
 		USART_ClearITPendingBit(USART1,USART_IT_RXNE);
@@ -439,6 +442,7 @@ void USART1_IRQHandler(void)
 	
 	if(USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)//空闲中断
 	{
+		LED2 = !LED2;
 		data = USART1->SR;//串口空闲中断的中断标志只能通过先读SR寄存器，再读DR寄存器清除！
 		data = USART1->DR;
 		

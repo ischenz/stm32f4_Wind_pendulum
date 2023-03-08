@@ -62,13 +62,14 @@ void PID_TimerInit(void)
 	
 	NVIC_InitTypeDef NVIC_InitStruct;
 	NVIC_InitStruct.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStruct);
 	
 	//TIM_Cmd(TIM10,ENABLE);
 	set_computer_value(SEND_PERIOD_CMD, CURVES_CH1, &temp, 1);
+	set_computer_value(SEND_PERIOD_CMD, CURVES_CH2, &temp, 1);
 }
 
 /**

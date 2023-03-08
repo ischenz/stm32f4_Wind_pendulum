@@ -116,19 +116,17 @@ void mode_4(void)
 {
     Roll_PID.Target = 0;
 	Pitch_PID.Target = 0;
-	float temp = 0;
 	
 	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
-	PWM_Load(Pwm_x, Pwm_y);
+	PWM_Load(-Pwm_x, Pwm_y);
 	if(kalmanFilter_Roll > 30 || kalmanFilter_Roll < -30){
 		PWM_Load(0, 0);
 	}
 	else if(kalmanFilter_Pitch > 30 || kalmanFilter_Pitch < -30){
 		PWM_Load(0, 0);
 	}
-	temp = kalmanFilter_Roll;
-	set_computer_value(SEND_FACT_CMD, CURVES_CH1, &temp, sizeof(float));
+	
 	OLED_ShowSNum(40,30,Pwm_x,4,8,1);
 	OLED_ShowSNum(40,40,Pwm_y,4,8,1);
 }
