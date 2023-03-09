@@ -55,8 +55,7 @@ int main(void)
 	OLED_Clear();
 	//printf("chen:电机初始化成功! \r\n");
 	//模式选择
-//	mode = switch_mode();
-    mode = 1; 
+	mode = switch_mode();
 	//printf("chen:选择模式%d! \r\n", mode);
 	//初始化MPU6050
 	delay_ms(500);
@@ -82,8 +81,8 @@ int main(void)
 //		case 4:break;
 //		case 5:break;
 		default:
-			set_p_i_d(&Roll_PID,100,0,1000);
-			set_p_i_d(&Pitch_PID,100,0,1000);	
+			set_p_i_d(&Roll_PID,80,0,1000);
+			set_p_i_d(&Pitch_PID,80,0,1000);	
 			break;
 	}
 	
@@ -120,12 +119,12 @@ int main(void)
 //			}		
 //		}
 
-//			OLED_Refresh();
-//			OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
-//			OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
-//			OLED_ShowFNum(40,30,Pitch_PID.ProportionConstant,4,8,1);
-//			OLED_ShowFNum(40,40,Pitch_PID.IntegralConstant,4,8,1);
-//			OLED_ShowFNum(40,50,Pitch_PID.DerivativeConstant,4,8,1);
+			OLED_Refresh();
+			OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
+			OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
+			OLED_ShowFNum(40,30,Pitch_PID.ProportionConstant,4,8,1);
+			OLED_ShowFNum(40,40,Pitch_PID.IntegralConstant,4,8,1);
+			OLED_ShowFNum(40,50,Pitch_PID.DerivativeConstant,4,8,1);
 		
 		//printf("%f,%f\r\n",Pitch,kalmanFilter_Pitch);
 		

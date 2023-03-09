@@ -112,8 +112,6 @@ void mode_4(void)
     Roll_PID.Target = 0;
 	Pitch_PID.Target = 0;
 	
-
-	
 	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
 	
@@ -134,7 +132,7 @@ void mode_4(void)
 //// 用激光笔在地面画圆(半径：15~35cm),台扇吹 5s 后能够在 5s 内恢复圆周运动
 void mode_5(void)
 {
-	float x = 0;//可控幅度
+	float x = 20;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
     float A = 0.0;             // 振幅
@@ -147,7 +145,7 @@ void mode_5(void)
     x_roll = A * sin(Omega_t);          // x = Ax * sin(ω * t)
     y_pitch = A * sin(Omega_t + pi/2);         // y = Ay * sin(ω * t)
 	
-	Roll_PID.Target = -x_roll;
+	Roll_PID.Target = x_roll;
 	Pitch_PID.Target = y_pitch;
 	Pwm_x = PID_Calculate(&Roll_PID, Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
@@ -179,6 +177,7 @@ void TIM1_UP_TIM10_IRQHandler(void)//5ms一次pid运算
 			case 2:mode_2();break;
 			case 3:mode_3();break;
 			case 4:mode_4();break;
+			case 5:mode_5();break;
 			default:break;
 		}		
 	}
