@@ -5,6 +5,7 @@
 #include "usart.h"
 
 float Pitch,Roll,Yaw;
+short aacx,aacy,aacz;		//加速度传感器原始数据
 extern float mechanical_error_Pitch,mechanical_error_Roll;
 float kalmanFilter_Roll,kalmanFilter_Pitch;
 
@@ -23,8 +24,8 @@ void Init_Timer3(void)
 	
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=TIM3_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0; 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=1; 
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1; 
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0; 
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
@@ -33,9 +34,9 @@ void TIM3_IRQHandler(void)
 {
 	if(TIM_GetITStatus(TIM3,TIM_IT_Update)==SET) //溢出中断
 	{
-		//LED1 = !LED1;
-		mpu_dmp_get_data(&Pitch,&Roll,&Yaw);		//角度
-		//printf("%f \n",Pitch);
+		mpu_dmp_get_data(&Pitch,&Roll,&Yaw);//角度
+//		MPU_Get_Accelerometer(&aacx,&aacy,&aacz);	//得到加速度传感
+//		printf("aacx:%d  aacy:%d   aacz%d \r\n",aacx,aacy,aacz);
 	}
 	TIM_ClearITPendingBit(TIM3,TIM_IT_Update); //清除中断标志位
 }

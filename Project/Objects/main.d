@@ -48,9 +48,7 @@
 .\objects\main.o: ..\HARDWARE\MPU6050\mpuexti.h
 .\objects\main.o: ..\HARDWARE\motor.h
 .\objects\main.o: ..\USER\control.h
-.\objects\main.o: ..\USER\Kalman.h
 .\objects\main.o: ..\USER\pid.h
 .\objects\main.o: ..\HARDWARE\pidtool.h
-.\objects\main.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\math.h
 .\objects\main.o: ..\SYSTERM\usart.h
 .\objects\main.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\stdio.h

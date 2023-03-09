@@ -45,5 +45,8 @@
 .\objects\control.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\math.h
 .\objects\control.o: ..\HARDWARE\MPU6050\mpu6050.h
 .\objects\control.o: ..\HARDWARE\MPU6050\mpuiic.h
+.\objects\control.o: ..\HARDWARE\MPU6050\eMPL\inv_mpu.h
 .\objects\control.o: ..\HARDWARE\key.h
+.\objects\control.o: ..\SYSTERM\usart.h
+.\objects\control.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\control.o: ..\SYSTERM\delay.h

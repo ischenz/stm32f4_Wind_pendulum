@@ -23,6 +23,7 @@ typedef struct{
 	int8_t KD_polarity;
 }PID_TypeDef;
 
+extern PID_TypeDef Roll_PID,Pitch_PID;
 
 int16_t PID_Calculate(PID_TypeDef *PID,float CurrentValue);
 void set_pid_target(PID_TypeDef *pid, float target);

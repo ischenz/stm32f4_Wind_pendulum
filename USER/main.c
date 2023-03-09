@@ -25,14 +25,13 @@
 
 uint8_t mode_num = 1;
 extern int16_t Pwm_x, Pwm_y;
-extern float Pitch,Roll,Yaw,kalmanFilter_Roll,kalmanFilter_Pitch,\
-			 mechanical_error_Roll,mechanical_error_Pitch;
+extern float Pitch,Roll,Yaw,kalmanFilter_Roll,kalmanFilter_Pitch;
 extern uint8_t mode;
 int32_t temp = 0;
 
 int main(void)
 {
-	u8 KEY_Val;
+//	u8 KEY_Val;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); 
 	delay_init(168);
 	protocol_init();
@@ -40,12 +39,8 @@ int main(void)
 	LED_Init();
 	OLED_Init();
 	KEY_Init();
-	Init_Timer3();//控制LED
-	TIM_Cmd(TIM3,ENABLE);
 	OLED_ShowString(0,0,"Hello !!!",16,1);
-	//printf("Hello chen!!! \r\n \r\n");
 	OLED_Refresh();
-	//printf("chen:LED初始化成功! \r\n");
 	//初始化motor
 	Motor_Gpio_Init();
 	Timer1_PWM_GPIO_Init(16, 1000);//约10KHz
@@ -53,21 +48,15 @@ int main(void)
 	OLED_Refresh();	
 	delay_ms(500);
 	OLED_Clear();
-	//printf("chen:电机初始化成功! \r\n");
 	//模式选择
 	mode = switch_mode();
-	//printf("chen:选择模式%d! \r\n", mode);
 	//初始化MPU6050
-	delay_ms(500);
-	OLED_Clear();
 	MPU_Init();
 	DMP_Init(); 
-	//MPU6050_EXTI_Init();//中断读取角度数据
-	//printf("chen:MPU6050初始化成功! \r\n");
-	
-	//校准角度
-	angle_calibration();
-	//printf("chen:角度初始化成功! \r\n");
+	delay_ms(500);
+	angle_calibration();//校准角度
+	Init_Timer3();
+	TIM_Cmd(TIM3,ENABLE);
 	//pid初始化
 	PID_param_init(&Roll_PID);
 	PID_param_init(&Pitch_PID);
@@ -75,15 +64,36 @@ int main(void)
 	set_pid_polarity(&Pitch_PID, 1, 1, 1);
 	switch (mode)
 	{
-//		case 1:break;
-//		case 2:break;
-//		case 3:break;
-//		case 4:break;
-//		case 5:break;
-		default:
+		case 1:{
 			set_p_i_d(&Roll_PID,80,0,1000);
-			set_p_i_d(&Pitch_PID,80,0,1000);	
+			set_p_i_d(&Pitch_PID,80,0,1000);
 			break;
+		}
+		case 2:{
+			set_p_i_d(&Roll_PID,80,0,1000);
+			set_p_i_d(&Pitch_PID,80,0,1000);
+			break;
+		}
+		case 3:{
+			set_p_i_d(&Roll_PID,80,0,1000);
+			set_p_i_d(&Pitch_PID,80,0,1000);
+			break;
+		}
+		case 4:	{
+			set_p_i_d(&Roll_PID,80,0,1000);
+			set_p_i_d(&Pitch_PID,80,0,1000);
+			break;
+		}
+		case 5:{
+			set_p_i_d(&Roll_PID,80,0,1000);
+			set_p_i_d(&Pitch_PID,80,0,1000);
+			break;
+		}
+		default:{
+			set_p_i_d(&Roll_PID,80,0,1000);
+			set_p_i_d(&Pitch_PID,80,0,1000);
+			break;
+		}
 	}
 	
 	
@@ -92,10 +102,8 @@ int main(void)
 	//printf("chen:初始化PID成功 !\r\n");
 	
 	
-	TIM_Cmd(TIM10, ENABLE);
-	set_computer_value(SEND_START_CMD, CURVES_CH1, NULL, 0); 
-	set_computer_value(SEND_START_CMD, CURVES_CH2, NULL, 0); 
-	
+	TIM_Cmd(TIM10, ENABLE);//开始PID运算
+	set_computer_value(SEND_START_CMD, CURVES_CH1, NULL, 0); 	
 	OLED_ShowString(0,0,"Pitch:",8,1);
 	OLED_ShowString(0,10,"Roll:",8,1);
 
@@ -119,13 +127,13 @@ int main(void)
 //			}		
 //		}
 
-			OLED_Refresh();
-			OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
-			OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
-			OLED_ShowFNum(40,30,Pitch_PID.ProportionConstant,4,8,1);
-			OLED_ShowFNum(40,40,Pitch_PID.IntegralConstant,4,8,1);
-			OLED_ShowFNum(40,50,Pitch_PID.DerivativeConstant,4,8,1);
-		
+		limit_angle();
+		OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
+		OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
+		OLED_ShowFNum(40,30,Pitch_PID.ProportionConstant,4,8,1);
+		OLED_ShowFNum(40,40,Pitch_PID.IntegralConstant,4,8,1);
+		OLED_ShowFNum(40,50,Pitch_PID.DerivativeConstant,4,8,1);
+		OLED_Refresh();
 		//printf("%f,%f\r\n",Pitch,kalmanFilter_Pitch);
 		
 		temp = kalmanFilter_Roll;

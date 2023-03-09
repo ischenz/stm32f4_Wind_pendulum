@@ -44,3 +44,20 @@ void PWM_Load(int moto_x,int moto_y)
 	TIM_SetCompare1(TIM1,My_abs(moto_y));
 }
 
+void motor_stop(void)
+{
+	Xin1=0,Xin2=0;//x+
+	Yin2=0,Yin1=0;
+	TIM_Cmd(TIM1, DISABLE);
+	TIM_Cmd(TIM10, DISABLE);
+	TIM_SetCompare4(TIM1,0);
+	TIM_SetCompare1(TIM1,0);
+}
+
+void motor_start(void)
+{
+	TIM_Cmd(TIM1, ENABLE);
+	TIM_Cmd(TIM10, ENABLE);
+}
+
+

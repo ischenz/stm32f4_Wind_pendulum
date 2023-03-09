@@ -3,7 +3,7 @@
 #include "usart.h"
 #include "control.h"
 #include <string.h>
-#include "led.h"
+#include "motor.h"
 #include "led.h"
 
 struct prot_frame_parser_t
@@ -353,13 +353,13 @@ int8_t receiving_process(void)
       
       case START_CMD:
       {
-        //set_motor_enable();              // 启动电机
+		motor_start();              // 启动电机
       }
       break;
       
       case STOP_CMD:
       {
-        //set_motor_disable();              // 停止电机
+        motor_stop();
       }
       break;
       
@@ -436,7 +436,6 @@ void USART1_IRQHandler(void)
 
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断
 	{
-		
 		data = USART_ReceiveData(USART1);   			
 		Recv1[rx_cnt++]=data;//接收的数据存入接收数组 
 		USART_ClearITPendingBit(USART1,USART_IT_RXNE);

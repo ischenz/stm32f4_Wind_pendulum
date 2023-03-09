@@ -40,14 +40,6 @@
 .\objects\pidtool.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\pidtool.o: ..\SYSTERM\sys.h
 .\objects\pidtool.o: ..\USER\control.h
-.\objects\pidtool.o: ..\HARDWARE\motor.h
-.\objects\pidtool.o: ..\HARDWARE\oled.h
-.\objects\pidtool.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\pidtool.o: ..\USER\Kalman.h
-.\objects\pidtool.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\math.h
-.\objects\pidtool.o: ..\HARDWARE\MPU6050\mpu6050.h
-.\objects\pidtool.o: ..\HARDWARE\MPU6050\mpuiic.h
-.\objects\pidtool.o: ..\HARDWARE\key.h
-.\objects\pidtool.o: ..\SYSTERM\delay.h
 .\objects\pidtool.o: C:\develop_Tools\MDK-ARM\ARM\ARMCC\Bin\..\include\string.h
+.\objects\pidtool.o: ..\HARDWARE\motor.h
 .\objects\pidtool.o: ..\HARDWARE\led.h
