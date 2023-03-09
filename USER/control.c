@@ -4,6 +4,7 @@ extern uint8_t mode_num;
 extern float Pitch,Roll,Yaw;
 
 float mechanical_error_Roll = 0, mechanical_error_Pitch = 0;
+float use_pitch = 0, use_roll = 0;
 
 uint8_t mode = 1;
 
@@ -14,13 +15,7 @@ PID_TypeDef Roll_PID,Pitch_PID;
 #define H 88.0f           // 单摆万向节到地面的距离
 #define angle 	 40.0f // 摆动角度设置
 
-#define Roll_KP -100
-#define Roll_KI 0
-#define Roll_KD -900
 
-#define Pitch_KP 100
-#define Pitch_KI 0
-#define Pitch_KD 900
 
 int16_t Pwm_x = 0, Pwm_y = 0;
 extern float kalmanFilter_Roll,kalmanFilter_Pitch;
@@ -104,8 +99,8 @@ void mode_3(void)
     x_roll = Ax * sin(Omega_t);          // x = Ax * sin(ω * t)
     y_pitch = Ay * sin(Omega_t);         // y = Ay * sin(ω * t)
 	
-	Roll_PID.Target = -x_roll;
-	Pitch_PID.Target = -y_pitch;
+	Roll_PID.Target = x_roll;
+	Pitch_PID.Target = y_pitch;
 	Pwm_x = PID_Calculate(&Roll_PID, Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
 	PWM_Load(Pwm_x, Pwm_y);
@@ -117,14 +112,19 @@ void mode_4(void)
     Roll_PID.Target = 0;
 	Pitch_PID.Target = 0;
 	
+
+	
 	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
-	PWM_Load(-Pwm_x, Pwm_y);
+	
 	if(kalmanFilter_Roll > 30 || kalmanFilter_Roll < -30){
 		PWM_Load(0, 0);
 	}
 	else if(kalmanFilter_Pitch > 30 || kalmanFilter_Pitch < -30){
 		PWM_Load(0, 0);
+	}
+	else {
+		PWM_Load(Pwm_x, Pwm_y);
 	}
 	
 	OLED_ShowSNum(40,30,Pwm_x,4,8,1);
@@ -165,7 +165,13 @@ void TIM1_UP_TIM10_IRQHandler(void)//5ms一次pid运算
 {
 	if(TIM_GetITStatus(TIM10,TIM_IT_Update)==SET) //溢出中断
 	{
-		//获取角度,卡尔曼滤波--->以移入到mpu中断中
+		//获取角度,卡尔曼滤波
+		use_pitch = Pitch+mechanical_error_Pitch;
+		use_roll = Roll+mechanical_error_Roll;
+		//			kalmanFilter_Roll = kalmanFilter_A(Roll);
+		//			kalmanFilter_Pitch = kalmanFilter_A(Pitch);
+		kalmanFilter_Roll = use_roll;
+		kalmanFilter_Pitch = use_pitch;
 		//进入相应模式
 		switch(mode)
 		{
@@ -242,4 +248,5 @@ void angle_calibration(void)
 	OLED_ShowString(0,30,"OK !!!",8,1);
 	OLED_Refresh();
 	delay_ms(500);
+	OLED_Clear();
 }

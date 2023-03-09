@@ -55,14 +55,15 @@ int main(void)
 	OLED_Clear();
 	//printf("chen:电机初始化成功! \r\n");
 	//模式选择
-	mode = switch_mode();
+//	mode = switch_mode();
+    mode = 1; 
 	//printf("chen:选择模式%d! \r\n", mode);
 	//初始化MPU6050
 	delay_ms(500);
 	OLED_Clear();
 	MPU_Init();
 	DMP_Init(); 
-	MPU6050_EXTI_Init();//中断读取角度数据
+	//MPU6050_EXTI_Init();//中断读取角度数据
 	//printf("chen:MPU6050初始化成功! \r\n");
 	
 	//校准角度
@@ -71,6 +72,21 @@ int main(void)
 	//pid初始化
 	PID_param_init(&Roll_PID);
 	PID_param_init(&Pitch_PID);
+	set_pid_polarity(&Roll_PID, -1, -1, -1);
+	set_pid_polarity(&Pitch_PID, 1, 1, 1);
+	switch (mode)
+	{
+//		case 1:break;
+//		case 2:break;
+//		case 3:break;
+//		case 4:break;
+//		case 5:break;
+		default:
+			set_p_i_d(&Roll_PID,100,0,1000);
+			set_p_i_d(&Pitch_PID,100,0,1000);	
+			break;
+	}
+	
 	
 	pid_tool_send_param(&Pitch_PID ,CURVES_CH2);
 	PID_TimerInit();
@@ -84,38 +100,38 @@ int main(void)
 	OLED_ShowString(0,0,"Pitch:",8,1);
 	OLED_ShowString(0,10,"Roll:",8,1);
 
-	OLED_ShowString(0,30,"PWM_x:",8,1);
-	OLED_ShowString(0,40,"PWM_y:",8,1);
-	OLED_ShowString(0,50,"Tim:",8,1);
+	OLED_ShowString(0,30,"P:",8,1);
+	OLED_ShowString(0,40,"I:",8,1);
+	OLED_ShowString(0,50,"D:",8,1);
 	OLED_Refresh();
 	
 	while(1)
 	{
-		static uint32_t i = 0;
-		i++;
-		delay_ms(1);
-		//printf("%f,%f\r\n",kalmanFilter_Pitch*100,kalmanFilter_Roll*100-2000);
-		KEY_Val = KEY_Scan();
-		if(KEY_Val)
-		{
-			if(KEY_Val == WKUP_PRES)
-				LED2 = 0;
-			if(KEY_Val == KEY1_PRES){
-				LED2 = 1;
-				
-				pid_tool_send_param(&Roll_PID ,CURVES_CH1);
-			}		
-		}
-		if(i==50){
-			i = 0;
-			OLED_Refresh();
-			OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
-			OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
-		}
 		receiving_process();
+//		KEY_Val = KEY_Scan();
+//		if(KEY_Val)
+//		{
+//			if(KEY_Val == WKUP_PRES)
+//				LED2 = 0;
+//			if(KEY_Val == KEY1_PRES){
+//				LED2 = 1;
+//				
+//				pid_tool_send_param(&Roll_PID ,CURVES_CH1);
+//			}		
+//		}
+
+//			OLED_Refresh();
+//			OLED_ShowFNum(40,0,kalmanFilter_Roll,4,8,1);
+//			OLED_ShowFNum(40,10,kalmanFilter_Pitch,4,8,1);
+//			OLED_ShowFNum(40,30,Pitch_PID.ProportionConstant,4,8,1);
+//			OLED_ShowFNum(40,40,Pitch_PID.IntegralConstant,4,8,1);
+//			OLED_ShowFNum(40,50,Pitch_PID.DerivativeConstant,4,8,1);
+		
+		//printf("%f,%f\r\n",Pitch,kalmanFilter_Pitch);
+		
 		temp = kalmanFilter_Roll;
 		set_computer_value(SEND_FACT_CMD, CURVES_CH1, &temp, 1);
-		temp = kalmanFilter_Pitch;
-		set_computer_value(SEND_FACT_CMD, CURVES_CH2, &temp, 1);
+//		temp = kalmanFilter_Pitch;
+//		set_computer_value(SEND_FACT_CMD, CURVES_CH2, &temp, 1);
 	}
 }

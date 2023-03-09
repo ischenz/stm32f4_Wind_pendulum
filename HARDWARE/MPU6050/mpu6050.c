@@ -16,7 +16,6 @@ void DMP_Init(void)
 	OLED_Refresh();
 	while(dmp_error = mpu_dmp_init())//DMP初始化
 	{
-		
 #if DEBUG
 		printf("dmp_error: %d  \r\n",dmp_error);
 		i++;
@@ -47,7 +46,7 @@ u8 MPU_Init(void)
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG,0X00);	//唤醒MPU6050 
 	MPU_Set_Gyro_Fsr(3);					//陀螺仪传感器,±2000dps
 	MPU_Set_Accel_Fsr(0);					//加速度传感器,±2g
-	MPU_Set_Rate(200);						//设置采样率50Hz
+	MPU_Set_Rate(50);						//设置采样率50Hz
 	MPU_Write_Byte(MPU_INT_EN_REG,0X00);	//关闭所有中断
 	MPU_Write_Byte(MPU_USER_CTRL_REG,0X00);	//I2C主模式关闭
 	MPU_Write_Byte(MPU_FIFO_EN_REG,0X00);	//关闭FIFO
@@ -57,7 +56,7 @@ u8 MPU_Init(void)
 	{
 		MPU_Write_Byte(MPU_PWR_MGMT1_REG,0X01);	//设置CLKSEL,PLL X轴为参考
 		MPU_Write_Byte(MPU_PWR_MGMT2_REG,0X00);	//加速度与陀螺仪都工作
-		MPU_Set_Rate(100);						//设置采样率为50Hz
+		MPU_Set_Rate(50);						//设置采样率为50Hz
  	}
 	else 
 	{

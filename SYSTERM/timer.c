@@ -1,22 +1,29 @@
 #include "timer.h"
 #include "led.h"
+#include "mpu6050.h"
+#include "inv_mpu.h"
+#include "usart.h"
+
+float Pitch,Roll,Yaw;
+extern float mechanical_error_Pitch,mechanical_error_Roll;
+float kalmanFilter_Roll,kalmanFilter_Pitch;
 
 void Init_Timer3(void)
 {
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);//APB1:42Mhz 定时器3：82Mhz/820 = 100Khz  100ms
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);//APB1:42Mhz 定时器3：84Mhz/840 = 100Khz  5ms
 	
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;//计时1s钟
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;//计时
 	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStructure.TIM_Period = 10000-1;
-	TIM_TimeBaseInitStructure.TIM_Prescaler = 820-1;
+	TIM_TimeBaseInitStructure.TIM_Period = 500-1;
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 840-1;
 	TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStructure);
 	
 	TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE);
 	
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=TIM3_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2; 
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0; 
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority=1; 
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -26,7 +33,9 @@ void TIM3_IRQHandler(void)
 {
 	if(TIM_GetITStatus(TIM3,TIM_IT_Update)==SET) //溢出中断
 	{
-		LED1 = !LED1;
+		//LED1 = !LED1;
+		mpu_dmp_get_data(&Pitch,&Roll,&Yaw);		//角度
+		//printf("%f \n",Pitch);
 	}
 	TIM_ClearITPendingBit(TIM3,TIM_IT_Update); //清除中断标志位
 }

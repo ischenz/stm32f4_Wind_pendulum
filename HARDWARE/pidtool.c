@@ -4,6 +4,7 @@
 #include "control.h"
 #include <string.h>
 #include "led.h"
+#include "led.h"
 
 struct prot_frame_parser_t
 {
@@ -315,11 +316,12 @@ int8_t receiving_process(void)
         
         if (packet.ch == CURVES_CH1)
         {
-          set_p_i_d(&Roll_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
+			set_p_i_d(&Roll_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
+			set_p_i_d(&Pitch_PID, temp_p.f, temp_i.f, temp_d.f); 
         }
         else if (packet.ch == CURVES_CH2)
         {
-          set_p_i_d(&Pitch_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
+			set_p_i_d(&Pitch_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
         }
         else if (packet.ch == CURVES_CH3)
         {
@@ -442,7 +444,7 @@ void USART1_IRQHandler(void)
 	
 	if(USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)//空闲中断
 	{
-		LED2 = !LED2;
+		
 		data = USART1->SR;//串口空闲中断的中断标志只能通过先读SR寄存器，再读DR寄存器清除！
 		data = USART1->DR;
 		
@@ -452,6 +454,7 @@ void USART1_IRQHandler(void)
 		protocol_data_recv(bufcopy, rx_cnt);
 		memset(Recv1,0,sizecopy);
 		rx_cnt=0;
+		
 	}
 } 
 

@@ -18,6 +18,10 @@ void PID_param_init(PID_TypeDef *pid)
     pid->LastErr = 0.0f;
 	pid->PenultErr = 0.0f;
     pid->Integral = 0.0f;//积分值
+	
+	pid->KP_polarity = 1;
+	pid->KI_polarity = 1;
+	pid->KD_polarity = 1;
 }
 
 /**
@@ -62,8 +66,8 @@ void PID_TimerInit(void)
 	
 	NVIC_InitTypeDef NVIC_InitStruct;
 	NVIC_InitStruct.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStruct);
 	
@@ -98,9 +102,16 @@ void set_pid_target(PID_TypeDef *pid, float target)
   */
 void set_p_i_d(PID_TypeDef *pid, float p, float i, float d)
 {
-  	pid->ProportionConstant = p;    // 设置比例系数 P
-	pid->IntegralConstant = i;    // 设置积分系数 I
-	pid->DerivativeConstant = d;    // 设置微分系数 D
+  	pid->ProportionConstant = p * (pid->KP_polarity);    // 设置比例系数 P
+	pid->IntegralConstant = i * (pid->KI_polarity);    // 设置积分系数 I
+	pid->DerivativeConstant = d * (pid->KD_polarity);    // 设置微分系数 D
+}
+
+void set_pid_polarity(PID_TypeDef *pid, int8_t p_polarity, int8_t i_polarity, int8_t d_polarity)
+{
+	pid->KP_polarity = p_polarity;
+	pid->KI_polarity = i_polarity;
+	pid->KD_polarity = d_polarity;
 }
 
 

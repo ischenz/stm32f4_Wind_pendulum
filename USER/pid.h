@@ -17,6 +17,10 @@ typedef struct{
     float Integral;//»ý·ÖºÍ
     float Target;
 	int16_t PID_out;
+	
+	int8_t KP_polarity;
+	int8_t KI_polarity;
+	int8_t KD_polarity;
 }PID_TypeDef;
 
 
@@ -26,6 +30,7 @@ float get_pid_target(PID_TypeDef *pid);
 void set_p_i_d(PID_TypeDef *pid, float p, float i, float d);
 void PID_TimerInit(void);
 void PID_param_init(PID_TypeDef *pid);
+void set_pid_polarity(PID_TypeDef *pid, int8_t p_polarity, int8_t i_polarity, int8_t d_polarity);
 
 #endif /* PID_H */
 

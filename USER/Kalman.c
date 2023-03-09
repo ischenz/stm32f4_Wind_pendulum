@@ -2,8 +2,8 @@
 //static double p_last = 0;
 //static double x_last = 0;
 
-#define P_Q 0.1
-#define M_R 3.01
+#define P_Q 0.05
+#define M_R 5.05
 
 /*
         Q:过程噪声，Q增大，动态响应变快，收敛稳定性变坏
