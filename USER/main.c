@@ -75,8 +75,8 @@ int main(void)
 			break;
 		}
 		case 3:{
-			set_p_i_d(&Roll_PID,80,0,1000);
-			set_p_i_d(&Pitch_PID,80,0,1000);
+			set_p_i_d(&Roll_PID,50,0,1000);
+			set_p_i_d(&Pitch_PID,50,0,1000);
 			break;
 		}
 		case 4:	{
@@ -85,8 +85,8 @@ int main(void)
 			break;
 		}
 		case 5:{
-			set_p_i_d(&Roll_PID,80,0,1000);
-			set_p_i_d(&Pitch_PID,80,0,1000);
+			set_p_i_d(&Roll_PID,50,0,1000);
+			set_p_i_d(&Pitch_PID,50,0,1000);
 			break;
 		}
 		default:{

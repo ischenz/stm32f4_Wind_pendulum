@@ -264,7 +264,6 @@ void protocol_data_recv(uint8_t *data, uint16_t data_len)
 {
     recvbuf_put_data(parser.recv_ptr, PROT_FRAME_LEN_RECV, parser.w_oft, data, data_len);    // 接收数据
     parser.w_oft = (parser.w_oft + data_len) % PROT_FRAME_LEN_RECV;   // 计算写偏移
-	
 }
 
 /**
@@ -317,7 +316,7 @@ int8_t receiving_process(void)
         if (packet.ch == CURVES_CH1)
         {
 			set_p_i_d(&Roll_PID, temp_p.f, temp_i.f, temp_d.f);    // 设置 P I D
-			set_p_i_d(&Pitch_PID, temp_p.f, temp_i.f, temp_d.f); 
+			//set_p_i_d(&Pitch_PID, temp_p.f, temp_i.f, temp_d.f); 
         }
         else if (packet.ch == CURVES_CH2)
         {

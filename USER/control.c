@@ -118,9 +118,9 @@ void mode_3(void)
 	
 	Roll_PID.Target = x_roll;
 	Pitch_PID.Target = y_pitch;
-	Pwm_x = PID_Calculate(&Roll_PID, Roll);
-	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
-	PWM_Load(Pwm_x, -Pwm_y);
+	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
+	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
+	PWM_Load(Pwm_x, Pwm_y);
 }
 
 //// 拉起一定角度(30°~45°),5s内使风力摆制动达到静止
@@ -131,14 +131,8 @@ void mode_4(void)
 	
 	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
-	if(kalmanFilter_Roll > -0.5f && kalmanFilter_Roll < 0.5f ){
-		PWM_Load(0,0);
-	}
-	else {
-		PWM_Load(Pwm_x, Pwm_y);
-	}
-		
 
+	PWM_Load(Pwm_x, Pwm_y);	
 }
 
 //// 用激光笔在地面画圆(半径：15~35cm),台扇吹 5s 后能够在 5s 内恢复圆周运动
@@ -159,8 +153,8 @@ void mode_5(void)
 	
 	Roll_PID.Target = x_roll;
 	Pitch_PID.Target = y_pitch;
-	Pwm_x = PID_Calculate(&Roll_PID, Roll);
-	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
+	Pwm_x = PID_Calculate(&Roll_PID, kalmanFilter_Roll);
+	Pwm_y = PID_Calculate(&Pitch_PID, kalmanFilter_Pitch);
 	PWM_Load(Pwm_x, Pwm_y);
 }
 
@@ -230,17 +224,17 @@ uint8_t Set_Angle(void)
 	uint8_t set_value = 0,key_value = 0;
 	OLED_Clear();
 	OLED_ShowString(0,0,"Set angle:",8,1);
-	OLED_ShowNum(80,0,set_value,2,8,1);
+	OLED_ShowNum(80,0,set_value,3,8,1);
 	OLED_Refresh();
 	while(1){
 		key_value = KEY_Scan();
 		if(key_value){
 			if(key_value == KEY0_PRES){
 				set_value +=10;
-				if(set_value > 180){
+				if(set_value > 90){
 					set_value = 0;
 				}
-				OLED_ShowNum(80,0,set_value,2,8,1);
+				OLED_ShowNum(80,0,set_value,3,8,1);
 				OLED_Refresh();
 			}
 			else if(key_value == KEY1_PRES){
@@ -273,7 +267,7 @@ uint8_t switch_mode(void)
 				OLED_Clear();
 				break;
 			}
-			if(select_mode > 4 ){
+			if(select_mode > 5 ){
 				select_mode = 0;
 			}
 			OLED_ShowNum(60,20,select_mode,1,24,1);
