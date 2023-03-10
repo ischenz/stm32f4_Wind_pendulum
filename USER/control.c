@@ -75,7 +75,7 @@ void mode_2(void)
 
 	if(set_status == 0){
 		set_status = 1;
-		x = Set_Length() -  3;
+		x = Set_Length();
 	}
 	
     Movetime += 5;                        // 每5ms运算一次
@@ -93,7 +93,9 @@ void mode_2(void)
 //// 15s 内按照设置的方向(角度)摆动(不短于 20cm)
 void mode_3(void)
 {
-	float x = 0;//可控幅度
+	static uint8_t SetAngle = 0;
+	static uint8_t set_status = 0;
+	float x = 20;//可控幅度
     const float cycle = 1574.0;          // 单摆周期
     static u32 Movetime = 0.0; // 运行总时长
     float A = 0.0;             // 振幅
@@ -101,10 +103,15 @@ void mode_3(void)
     float Ax, Ay;
     float x_roll, y_pitch;
 
+	if(set_status == 0){
+		set_status = 1;
+		SetAngle = Set_Angle();
+	}
+	
     Movetime += 5;                       // 每5ms运算一次
     A = 57.2958f * atan(x / H);         // 计算振幅，公式为(360/2π*atan(R/H))
-    Ax = A * cos(angle * pi / 180);      // 计算x方向摆幅分量，公式为(A*cos(角度*π/180))
-    Ay = A * sin(angle * pi / 180);      // 计算y方向摆幅分量，公式为(A*sin(角度*π/180))
+    Ax = A * cos(SetAngle * pi / 180);      // 计算x方向摆幅分量，公式为(A*cos(角度*π/180))
+    Ay = A * sin(SetAngle * pi / 180);      // 计算y方向摆幅分量，公式为(A*sin(角度*π/180))
     Omega_t = 2 * pi * Movetime / cycle; // 计算ωt
     x_roll = Ax * sin(Omega_t);          // x = Ax * sin(ω * t)
     y_pitch = Ay * sin(Omega_t);         // y = Ay * sin(ω * t)
@@ -113,7 +120,7 @@ void mode_3(void)
 	Pitch_PID.Target = y_pitch;
 	Pwm_x = PID_Calculate(&Roll_PID, Roll);
 	Pwm_y = PID_Calculate(&Pitch_PID, Pitch);
-	PWM_Load(Pwm_x, Pwm_y);
+	PWM_Load(Pwm_x, -Pwm_y);
 }
 
 //// 拉起一定角度(30°~45°),5s内使风力摆制动达到静止
@@ -195,25 +202,57 @@ uint8_t Set_Length(void)
 	uint8_t set_value = 20,key_value = 0;
 	OLED_Clear();
 	OLED_ShowString(0,0,"Set length:",8,1);
+	OLED_ShowNum(80,0,set_value,2,8,1);
 	OLED_Refresh();
 	while(1){
 		key_value = KEY_Scan();
-		if(key_value == KEY0_PRES){
-			set_value +=5;
-			if(set_value > 30){
-				set_value = 20;
+		if(key_value){
+			if(key_value == KEY0_PRES){
+				set_value +=5;
+				if(set_value > 30){
+					set_value = 20;
+				}
+				OLED_ShowNum(80,0,set_value,2,8,1);
+				OLED_Refresh();
 			}
-			OLED_ShowNum(80,0,set_value,2,8,1);
-			OLED_Refresh();
-		}
-		else if(key_value == KEY1_PRES){
-			OLED_ShowString(10,0,"OK!!!",8,1);
-			delay_ms(500);
-			OLED_Refresh();
-			return set_value;
+			else if(key_value == KEY1_PRES){
+				OLED_ShowString(10,0,"OK!!!",8,1);
+				delay_ms(500);
+				OLED_Refresh();
+				return set_value;
+			}
 		}
 	}
 }
+
+uint8_t Set_Angle(void)
+{
+	uint8_t set_value = 0,key_value = 0;
+	OLED_Clear();
+	OLED_ShowString(0,0,"Set angle:",8,1);
+	OLED_ShowNum(80,0,set_value,2,8,1);
+	OLED_Refresh();
+	while(1){
+		key_value = KEY_Scan();
+		if(key_value){
+			if(key_value == KEY0_PRES){
+				set_value +=10;
+				if(set_value > 180){
+					set_value = 0;
+				}
+				OLED_ShowNum(80,0,set_value,2,8,1);
+				OLED_Refresh();
+			}
+			else if(key_value == KEY1_PRES){
+				OLED_ShowString(10,0,"OK!!!",8,1);
+				delay_ms(500);
+				OLED_Refresh();
+				return set_value;
+			}
+		}
+	}
+}
+
 uint8_t switch_mode(void)
 {
 	uint8_t	select_mode = 0, key_num = 0;
